@@ -1,0 +1,23 @@
+{
+  "name": "weather-front-end",
+  "version": "1.0.0",
+  "description": "A Lit-based front-end for the Weather Wizard project",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "wds --config web-dev-server.config.js"
+  },
+  "keywords": [
+    "lit",
+    "weather",
+    "frontend",
+    "web-components"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "@web/dev-server": "^0.4.6",
+    "lit": "^3.2.1"
+  }
+}
+
