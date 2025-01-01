@@ -1,18 +1,15 @@
 {
   "name": "weather-front-end",
   "version": "1.0.0",
-  "description": "A Lit-based front-end for the Weather Wizard project",
+  "description": "A front-end for the Weather Wizard project",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "wds --config web-dev-server.config.js"
+    "start": "wds --node-resolve --watch",
+    "build": "lit build",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "lit",
-    "weather",
-    "frontend",
-    "web-components"
-  ],
+  "keywords": [],
   "author": "Your Name",
   "license": "ISC",
   "devDependencies": {
@@ -20,4 +17,3 @@
     "lit": "^3.2.1"
   }
 }
-
