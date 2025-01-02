@@ -14,7 +14,7 @@ The **Weather Wizard Frontend** is an interactive web application that provides 
 - **HTML5**: For the structure of the page.
 - **JavaScript (Web Components)**: For interactivity and logic.
 - **CSS3**: For styling, animations, and layout.
-- **Python HTTP Server**: For serving static files during development.
+- **nginx HTTP Server**: For serving static files during development.
 
 ## Prerequisites
 
