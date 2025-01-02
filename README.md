@@ -1,24 +1,31 @@
-# Weather Front-End
+i# Weather Wizard Frontend
 
-The `weather-front-end` is a lightweight web application built with Lit for the Weather Wizard project. It serves as the user interface to interact with the weather analysis and fetching services deployed in a Kubernetes cluster.
+The **Weather Wizard Frontend** is an interactive web application that provides weather forecasts in an enchanting "crystal ball" format. Users can enter a city name to get the current weather details, displayed within a visually engaging crystal ball. During the data-fetching process, animated swirling clouds appear to enhance the magical experience.
 
 ## Features
 
-- Displays weather insights based on city input.
-- Fetches data from the backend weather-interaction-service.
-- Responsive design with a simple and modern user interface.
-- Containerized for easy deployment in Kubernetes.
+- **Crystal Ball Display**: Weather details are shown in a crystal ball for a mystical, engaging presentation.
+- **Interactive Animations**: Swirling clouds animate during data fetching.
+- **Responsive Design**: The layout adapts to different screen sizes, ensuring a seamless experience.
+- **Background Gradient**: Midnight blue gradient background for a thematic visual effect.
+
+## Technologies Used
+
+- **HTML5**: For the structure of the page.
+- **JavaScript (Web Components)**: For interactivity and logic.
+- **CSS3**: For styling, animations, and layout.
+- **Python HTTP Server**: For serving static files during development.
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
-- Docker
-- Kubernetes cluster with backend services deployed (`weather-interaction-service`).
+- [Node.js](https://nodejs.org/) installed (optional if you are setting up advanced builds).
+- A Python environment for testing the frontend locally using `python3 -m http.server`.
 
-## Installation and Development
+## Getting Started
 
-### Clone the Repository
-```bash
-git clone https://your-repo-url/weather-front-end.git
-cd weather-front-end
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-repo/weather-wizard-frontend.git
+   cd weather-wizard-frontend
 

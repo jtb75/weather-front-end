@@ -1,24 +1,20 @@
-# Stage 1: Build the application
-FROM node:18-alpine AS build
-WORKDIR /app
-
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm install
-
-# Copy application code
-COPY . .
-
-# Build the application for production
-RUN npm run build
-
-# Stage 2: Serve the application with a lightweight web server
+# Use an NGINX base image
 FROM nginx:alpine
-# Copy the built application from the build stage to the nginx web root
-COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80 to serve the application
+# Set the working directory to the NGINX web root
+WORKDIR /usr/share/nginx/html
+
+# Remove the default NGINX static assets
+RUN rm -rf ./*
+
+# Copy the static assets into the web root
+COPY ./public ./public
+COPY ./src/index.html ./index.html
+COPY ./src/script.js ./script.js
+
+# Expose the default HTTP port
 EXPOSE 80
 
-# Start nginx server
+# Start the NGINX server
 CMD ["nginx", "-g", "daemon off;"]
+
