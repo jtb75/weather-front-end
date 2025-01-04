@@ -1,0 +1,62 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Log in to Docker registry
+      - name: Log in to Harbor
+        uses: docker/login-action@v2
+        with:
+          registry: harbor.k8s.ng20.org
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      # Step 4: Extract current tag version
+      - name: Get current version
+        id: version
+        run: |
+          latest_tag=$(docker images --format "{{.Tag}}" harbor.k8s.ng20.org/weather-wizard/weather-front-end | sort -V | tail -n1)
+          if [[ -z "$latest_tag" ]]; then
+            echo "latest_tag=0.0.0" >> $GITHUB_ENV
+          else
+            echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          fi
+          echo "Current tag: $latest_tag"
+
+      # Step 5: Increment the tag version
+      - name: Increment version
+        id: increment_version
+        run: |
+          IFS='.' read -r -a parts <<< "$latest_tag"
+          parts[2]=$((parts[2] + 1))
+          new_version="${parts[0]}.${parts[1]}.${parts[2]}"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+          echo "New version: $new_version"
+
+      # Step 6: Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: harbor.k8s.ng20.org/weather-wizard/weather-front-end:${{ env.new_version }}
+
+      # Step 7: Output new version
+      - name: Output new version
+        run: echo "Docker image pushed with tag ${{ env.new_version }}"
