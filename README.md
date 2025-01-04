@@ -1,6 +1,6 @@
 i# Weather Wizard Frontend
 
-The **Weather Wizard Frontend** is a test interactive web application that provides weather forecasts in an enchanting "crystal ball" format. Users can enter a city name to get the current weather details, displayed within a visually engaging crystal ball. During the data-fetching process, animated swirling clouds appear to enhance the magical experience.
+The **Weather Wizard Frontend** is an interactive web application that provides weather forecasts in an enchanting "crystal ball" format. Users can enter a city name to get the current weather details, displayed within a visually engaging crystal ball. During the data-fetching process, animated swirling clouds appear to enhance the magical experience.
 
 ## Features
 
