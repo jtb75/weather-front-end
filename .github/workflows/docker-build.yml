@@ -31,8 +31,12 @@ jobs:
       - name: Get current version
         id: version
         run: |
-          tags=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" \
-            https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list | jq -r '.tags | sort | .[-1]')
+          response=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" \
+            https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list)
+          
+          echo "Response from registry: $response"
+
+          tags=$(echo "$response" | jq -r '.tags | select(. != null) | sort | .[-1]')
           if [[ -z "$tags" ]]; then
             echo "latest_tag=0.0.0" >> $GITHUB_ENV
           else
