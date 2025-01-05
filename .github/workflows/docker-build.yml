@@ -96,3 +96,5 @@ jobs:
             } catch (error) {
               console.error("Error triggering workflow:", error);
             }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
