@@ -77,5 +77,5 @@ jobs:
               repo: 'weather-wizard-deployment',
               workflow_id: 'update-deployment.yaml',
               ref: 'prod',
-              inputs: { new_version: '${{ env.new_version }}' }
+              inputs: { new_version: process.env.new_version }
             });
