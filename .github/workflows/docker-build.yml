@@ -72,11 +72,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const octokit = require('@actions/github').getOctokit(process.env.GITHUB_TOKEN);
-            await octokit.rest.actions.createWorkflowDispatch({
+            await github.rest.actions.createWorkflowDispatch({
               owner: 'jtb75',
               repo: 'weather-wizard-deployment',
               workflow_id: 'update-deployment.yaml',
               ref: 'prod',
-              inputs: { new_version: process.env.new_version }
+              inputs: { new_version: '${{ env.new_version }}' }
             });
