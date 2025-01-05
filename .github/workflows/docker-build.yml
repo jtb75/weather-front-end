@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - prod
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -30,13 +31,14 @@ jobs:
       - name: Get current version
         id: version
         run: |
-          latest_tag=$(docker images --format "{{.Tag}}" harbor.k8s.ng20.org/weather-wizard/weather-front-end | sort -V | tail -n1)
-          if [[ -z "$latest_tag" ]]; then
+          tags=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" \
+            https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list | jq -r '.tags | sort | .[-1]')
+          if [[ -z "$tags" ]]; then
             echo "latest_tag=0.0.0" >> $GITHUB_ENV
           else
-            echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+            echo "latest_tag=$tags" >> $GITHUB_ENV
           fi
-          echo "Current tag: $latest_tag"
+          echo "Current tag: $tags"
 
       # Step 5: Increment the tag version
       - name: Increment version
