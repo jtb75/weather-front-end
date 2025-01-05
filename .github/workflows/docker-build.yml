@@ -66,3 +66,17 @@ jobs:
       # Step 7: Output new version
       - name: Output new version
         run: echo "Docker image pushed with tag ${{ env.new_version }}"
+
+      # Step 8: Trigger deployment update workflow
+      - name: Trigger deployment update workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const octokit = require('@actions/github').getOctokit(process.env.GITHUB_TOKEN);
+            await octokit.rest.actions.createWorkflowDispatch({
+              owner: 'jtb75',
+              repo: 'weather-wizard-deployment',
+              workflow_id: 'update-deployment.yaml',
+              ref: 'prod',
+              inputs: { new_version: process.env.new_version }
+            });
