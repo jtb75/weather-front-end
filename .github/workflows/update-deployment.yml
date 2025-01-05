@@ -1,10 +1,11 @@
 name: Update Deployment YAML
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Image"]
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: 'The new container version to deploy'
+        required: true
 
 jobs:
   update-deployment:
@@ -22,9 +23,9 @@ jobs:
       - name: Update deployment YAML
         run: |
           cd deploy/k8s
-          sed -i "s|image: harbor.k8s.ng20.org/weather-wizard/weather-front-end:.*|image: harbor.k8s.ng20.org/weather-wizard/weather-front-end:${{ github.event.workflow_run.outputs.new_version }}|" weather-front-end.yaml
+          sed -i "s|image: harbor.k8s.ng20.org/weather-wizard/weather-front-end:.*|image: harbor.k8s.ng20.org/weather-wizard/weather-front-end:${{ github.event.inputs.new_version }}|" weather-front-end.yaml
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Update weather-front-end image to version ${{ github.event.workflow_run.outputs.new_version }}"
+          git commit -m "Update weather-front-end image to version ${{ github.event.inputs.new_version }}"
           git push
