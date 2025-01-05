@@ -31,12 +31,14 @@ jobs:
       - name: Get current version
         id: version
         run: |
+          echo "Fetching current version from Harbor registry..."
           response=$(curl -s -u '${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}' \
             https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list)
-          
           echo "Response from registry: $response"
 
           tags=$(echo "$response" | jq -r '.tags | sort | .[-1]')
+          echo "Extracted tags: $tags"
+
           if [[ -z "$tags" ]]; then
             echo "latest_tag=0.0.0" >> $GITHUB_ENV
           else
@@ -48,6 +50,7 @@ jobs:
       - name: Increment version
         id: increment_version
         run: |
+          echo "Incrementing tag version..."
           IFS='.' read -r -a parts <<< "$latest_tag"
           parts[2]=$((parts[2] + 1))
           new_version="${parts[0]}.${parts[1]}.${parts[2]}"
@@ -72,10 +75,21 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.actions.createWorkflowDispatch({
+            console.log("Triggering deployment update workflow with inputs:");
+            console.log({
               owner: 'jtb75',
               repo: 'weather-wizard-deployment',
               workflow_id: 'update-deployment.yml',
               ref: 'prod',
               inputs: { new_version: process.env.new_version }
             });
+
+            const response = await github.rest.actions.createWorkflowDispatch({
+              owner: 'jtb75',
+              repo: 'weather-wizard-deployment',
+              workflow_id: 'update-deployment.yml',
+              ref: 'prod',
+              inputs: { new_version: process.env.new_version }
+            });
+
+            console.log("Workflow dispatch response:", response);
