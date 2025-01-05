@@ -75,7 +75,7 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: 'jtb75',
               repo: 'weather-wizard-deployment',
-              workflow_id: 'update-deployment.yaml',
+              workflow_id: 'update-deployment.yml',
               ref: 'prod',
               inputs: { new_version: process.env.new_version }
             });
