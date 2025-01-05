@@ -36,7 +36,7 @@ jobs:
           
           echo "Response from registry: $response"
 
-          tags=$(echo "$response" | jq -r '.tags | sort | .[-1]') | sort | .[-1]')
+          tags=$(echo "$response" | jq -r '.tags | sort | .[-1]')
           if [[ -z "$tags" ]]; then
             echo "latest_tag=0.0.0" >> $GITHUB_ENV
           else
