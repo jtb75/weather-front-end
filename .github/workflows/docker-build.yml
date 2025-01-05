@@ -31,7 +31,7 @@ jobs:
       - name: Get current version
         id: version
         run: |
-          echo "${{ secrets.HARBOR_USERNAME }}"
+          echo '${{ secrets.HARBOR_USERNAME }}'
           response=$(curl -s -u "'${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}'" \
             https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list)
           
