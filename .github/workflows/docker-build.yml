@@ -36,7 +36,7 @@ jobs:
             https://harbor.k8s.ng20.org/v2/weather-wizard/weather-front-end/tags/list)
           echo "Response from registry: $response"
 
-          tags=$(echo "$response" | jq -r '.tags | sort | .[-1]')
+          tags=$(echo "$response" | jq -r '.tags | select(. != null) | .[]' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1)
           echo "Extracted tags: $tags"
 
           if [[ -z "$tags" ]]; then
