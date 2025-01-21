@@ -71,18 +71,6 @@ jobs:
           load: true
           tags: ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 6.1: Extract digest of Docker image
-      - name: Extract digest of Docker image
-        id: extract-digest
-        run: |
-          digest=$(docker buildx imagetools inspect ${{ env.REPO }}:${{ env.new_version }} --format "{{json .Manifest}}" | jq -r .digest)
-          echo "digest=$digest" >> $GITHUB_ENV
-          echo "digest=$digest" >> $GITHUB_OUTPUT
-          echo "Stored digest: $digest"
-        env:
-          REPO: ${{ env.REPO }}
-          new_version: ${{ env.new_version }}
-
       # Step 6.2: Download Wiz CLI
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
@@ -95,24 +83,36 @@ jobs:
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
       # Step 6.3.1: Run Wiz CLI Docker image scan
-      #- name: Run Wiz CLI Docker image scan
-      #  run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
-
-      # Step 6.4: Fetch digest of Docker image for Graph enrichment
-      - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
-        env:
-          digest: ${{ steps.extract-digest.outputs.digest }}
+      - name: Run Wiz CLI Docker image scan
+        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
 
       # Step 7: Push Docker image
       - name: Push Docker image
         run: docker push ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 8: Output new version
+      # Step 8: Extract digest of Docker image
+      - name: Extract digest of Docker image
+        id: extract-digest
+        run: |
+          digest=$(docker inspect ${{ env.REPO }}:${{ env.new_version }} | jq -r '.[0].RepoDigests[0]' | cut -d'@' -f2)
+          echo "digest=$digest" >> $GITHUB_ENV
+          echo "digest=$digest" >> $GITHUB_OUTPUT
+          echo "Stored digest: $digest"
+        env:
+          REPO: ${{ env.REPO }}
+          new_version: ${{ env.new_version }}
+
+      # Step 9: Fetch digest of Docker image for Graph enrichment
+      - name: Fetch digest of Docker image for Graph enrichment
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
+        env:
+          digest: ${{ steps.extract-digest.outputs.digest }}
+
+      # Step 10: Output new version
       - name: Output new version
         run: echo "Docker image pushed with tag ${{ env.new_version }}"
 
-      # Step 9: Trigger deployment update workflow using curl
+      # Step 11: Trigger deployment update workflow using curl
       - name: Trigger deployment update workflow
         run: |
           echo "Triggering deployment update workflow with curl..."
