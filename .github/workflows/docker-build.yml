@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      POLICY: "jtb75-vuln-policy" # Set the desired Wiz CLI policy to use
+      REPO: "harbor.k8s.ng20.org/weather-wizard/weather-front-end"
 
     steps:
       # Step 1: Checkout the code
@@ -57,20 +60,43 @@ jobs:
           echo "new_version=$new_version" >> $GITHUB_ENV
           echo "New version: $new_version"
 
-      # Step 6: Build and push Docker image
-      - name: Build and push Docker image
+      # Step 6: Build Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
-          push: true
-          tags: harbor.k8s.ng20.org/weather-wizard/weather-front-end:${{ env.new_version }}
+          push: false
+          tags: ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 7: Output new version
+      # Step 6.1: Download Wiz CLI
+      - name: Download Wiz CLI
+        run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
+
+      # Step 6.2: Authenticate to Wiz
+      - name: Authenticate to Wiz
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      # Step 6.3: Run wiz-cli docker image scan
+      - name: Run wiz-cli docker image scan
+        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
+
+      # Step 6.4: Fetch digest of Docker image for Graph enrichment
+      - name: Fetch digest of Docker image for Graph enrichment
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }}
+
+      # Step 7: Push Docker image
+      - name: Push Docker image
+        run: docker push ${{ env.REPO }}:${{ env.new_version }}
+
+      # Step 8: Output new version
       - name: Output new version
         run: echo "Docker image pushed with tag ${{ env.new_version }}"
 
-      # Step 8: Trigger deployment update workflow using curl
+      # Step 9: Trigger deployment update workflow using curl
       - name: Trigger deployment update workflow
         run: |
           echo "Triggering deployment update workflow with curl..."
