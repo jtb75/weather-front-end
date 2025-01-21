@@ -82,7 +82,7 @@ jobs:
 
       # Step 6.3: Run wiz-cli docker image scan
       - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
+        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy ${{ env.POLICY }}
 
       # Step 6.4: Fetch digest of Docker image for Graph enrichment
       - name: Fetch digest of Docker image for Graph enrichment
