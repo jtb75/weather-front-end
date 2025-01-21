@@ -71,6 +71,17 @@ jobs:
           load: true
           tags: ${{ env.REPO }}:${{ env.new_version }}
 
+      # Step 6.1: Extract digest of Docker image
+      - name: Extract digest of Docker image
+        id: extract-digest
+        run: |
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
+          echo "digest=$digest" >> $GITHUB_ENV
+          echo "::set-output name=digest::$digest"
+        env:
+          REPO: ${{ env.REPO }}
+          new_version: ${{ env.new_version }}
+
       # Step 6.2: Download Wiz CLI
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
@@ -90,7 +101,7 @@ jobs:
       - name: Fetch digest of Docker image for Graph enrichment
         run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
         env:
-          digest: ${{ steps.build_image.outputs.digest }}
+          digest: ${{ steps.extract-digest.outputs.digest }}
 
       # Step 7: Push Docker image
       - name: Push Docker image
