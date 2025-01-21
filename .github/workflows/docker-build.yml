@@ -75,7 +75,6 @@ jobs:
         id: image_digest
         run: |
           digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
-          echo "::set-output name=digest::$digest"
           echo "digest=$digest" >> $GITHUB_ENV
           echo "Stored image digest: $digest"
 
@@ -90,11 +89,15 @@ jobs:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
+      # Step 6.3.1: Run Wiz CLI Docker image scan
+      - name: Run Wiz CLI Docker image scan
+        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
+
       # Step 6.4: Fetch digest of Docker image for Graph enrichment
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $DIGEST
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
         env:
-          DIGEST: ${{ steps.image_digest.outputs.digest }}
+          digest: ${{ env.digest }}
 
       # Step 7: Push Docker image
       - name: Push Docker image
