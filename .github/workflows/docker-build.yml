@@ -75,6 +75,7 @@ jobs:
         id: image_digest
         run: |
           digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
+          echo "::set-output name=digest::$digest"
           echo "digest=$digest" >> $GITHUB_ENV
           echo "Stored image digest: $digest"
 
@@ -91,9 +92,9 @@ jobs:
 
       # Step 6.4: Fetch digest of Docker image for Graph enrichment
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest ${{ env.digest }}
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $DIGEST
         env:
-          digest: ${{ env.digest }}
+          DIGEST: ${{ steps.image_digest.outputs.digest }}
 
       # Step 7: Push Docker image
       - name: Push Docker image
