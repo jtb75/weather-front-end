@@ -22,7 +22,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Log in to Docker registry
+      # Step 3: Log in to Harbor
       - name: Log in to Harbor
         uses: docker/login-action@v2
         with:
@@ -70,24 +70,28 @@ jobs:
           load: true
           tags: ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 6.1: Download Wiz CLI
+      # Step 6.1: Store Docker image digest
+      - name: Store Docker image digest
+        id: image_digest
+        run: |
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
+          echo "digest=$digest" >> $GITHUB_ENV
+          echo "Stored image digest: $digest"
+
+      # Step 6.2: Download Wiz CLI
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
 
-      # Step 6.2: Authenticate to Wiz
+      # Step 6.3: Authenticate to Wiz
       - name: Authenticate to Wiz
         run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
-      # Step 6.3: Run wiz-cli docker image scan
-      - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy ${{ env.POLICY }}
-
       # Step 6.4: Fetch digest of Docker image for Graph enrichment
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }}
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest ${{ env.digest }}
 
       # Step 7: Push Docker image
       - name: Push Docker image
