@@ -76,6 +76,7 @@ jobs:
         id: extract-digest
         run: |
           digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
+          echo $digest
           echo "digest=$digest" >> $GITHUB_ENV
         env:
           REPO: ${{ env.REPO }}
