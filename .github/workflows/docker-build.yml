@@ -91,7 +91,7 @@ jobs:
 
       # Step 6.4: Fetch digest of Docker image for Graph enrichment
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
+        run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest ${{ env.digest }}
         env:
           digest: ${{ env.digest }}
 
