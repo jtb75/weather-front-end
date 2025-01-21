@@ -75,6 +75,7 @@ jobs:
       - name: Extract digest of Docker image
         id: extract-digest
         run: |
+          docker inspect ${{ env.REPO }}:${{ env.new_version }} | jq
           digest=$(docker inspect ${{ env.REPO }}:${{ env.new_version }} | jq -r '.[0].RepoDigests[0]' | cut -d'@' -f2)
           echo "digest=$digest" >> $GITHUB_ENV
           echo "digest=$digest" >> $GITHUB_OUTPUT
