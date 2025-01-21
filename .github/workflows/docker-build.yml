@@ -62,6 +62,7 @@ jobs:
 
       # Step 6: Build Docker image
       - name: Build Docker image
+        id: build-image
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -69,14 +70,6 @@ jobs:
           push: false
           load: true
           tags: ${{ env.REPO }}:${{ env.new_version }}
-
-      # Step 6.1: Store Docker image digest
-      - name: Store Docker image digest
-        id: image_digest
-        run: |
-          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REPO }}:${{ env.new_version }} | cut -d'@' -f2)
-          echo "digest=$digest" >> $GITHUB_ENV
-          echo "Stored image digest: $digest"
 
       # Step 6.2: Download Wiz CLI
       - name: Download Wiz CLI
@@ -97,7 +90,7 @@ jobs:
       - name: Fetch digest of Docker image for Graph enrichment
         run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
         env:
-          digest: ${{ env.digest }}
+          digest: ${{ steps.build_image.outputs.digest }}
 
       # Step 7: Push Docker image
       - name: Push Docker image
