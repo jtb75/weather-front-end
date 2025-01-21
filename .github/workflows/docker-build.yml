@@ -71,26 +71,26 @@ jobs:
           load: true
           tags: ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 6.2: Download Wiz CLI
+      # Step 7: Download Wiz CLI
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
 
-      # Step 6.3: Authenticate to Wiz
+      # Step 8: Authenticate to Wiz
       - name: Authenticate to Wiz
         run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
-      # Step 6.3.1: Run Wiz CLI Docker image scan
+      # Step 9: Run Wiz CLI Docker image scan
       - name: Run Wiz CLI Docker image scan
         run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
 
-      # Step 7: Push Docker image
+      # Step 10: Push Docker image
       - name: Push Docker image
         run: docker push ${{ env.REPO }}:${{ env.new_version }}
 
-      # Step 8: Extract digest of Docker image
+      # Step 11: Extract digest of Docker image
       - name: Extract digest of Docker image
         id: extract-digest
         run: |
@@ -102,17 +102,17 @@ jobs:
           REPO: ${{ env.REPO }}
           new_version: ${{ env.new_version }}
 
-      # Step 9: Fetch digest of Docker image for Graph enrichment
-      - name: Fetch digest of Docker image for Graph enrichment
+      # Step 12: Tag digest of Docker image for Graph enrichment
+      - name: Tag digest of Docker image for Graph enrichment
         run: ./wizcli docker tag --image ${{ env.REPO }}:${{ env.new_version }} --digest $digest
         env:
           digest: ${{ steps.extract-digest.outputs.digest }}
 
-      # Step 10: Output new version
+      # Step 13: Output new version
       - name: Output new version
         run: echo "Docker image pushed with tag ${{ env.new_version }}"
 
-      # Step 11: Trigger deployment update workflow using curl
+      # Step 14: Trigger deployment update workflow using curl
       - name: Trigger deployment update workflow
         run: |
           echo "Triggering deployment update workflow with curl..."
