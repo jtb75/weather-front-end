@@ -84,7 +84,7 @@ jobs:
 
       # Step 9: Run Wiz CLI Docker image scan
       - name: Run Wiz CLI Docker image scan
-        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY"
+        run: ./wizcli docker scan --image ${{ env.REPO }}:${{ env.new_version }} --policy "$POLICY" --dockerfile ./Dockerfile
 
       # Step 10: Push Docker image
       - name: Push Docker image
